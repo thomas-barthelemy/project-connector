@@ -1,0 +1,6 @@
+﻿namespace RedmineConnector
+{
+    class RedmineConverter
+    {
+    }
+}

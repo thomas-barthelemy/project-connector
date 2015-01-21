@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Project_Connector.Models
@@ -14,5 +15,6 @@ namespace Project_Connector.Models
         public string AuthorId { get; set; }
         public DateTime? CreationDate { get; set; }
         public DateTime? LastUpdate { get; set; }
+        public IEnumerable<ProjectMembership> Members { get; set; }
     }
 }

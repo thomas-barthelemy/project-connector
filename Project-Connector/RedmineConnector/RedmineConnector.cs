@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Project_Connector.Connectors;
 using Project_Connector.Models;
 using Redmine.Net.Api;
@@ -25,7 +26,17 @@ namespace RedmineConnector
             var redmineProjects = _redmineManager.GetTotalObjectList<RedmineProject>(null);
             var redmineIssues = _redmineManager.GetTotalObjectList<RedmineIssue>(null);
 
-            return null;
+            var result = new ProjectExchangeData
+            {
+                ExportDate = DateTime.Now,
+                ExportOrigin = new ExportOrigin {Name = "Redmine"},
+                Version = "1.0",
+                Users = redmineUsers.Select(ToUser),
+                Projects = redmineProjects.Select(ToProject),
+                Issues = redmineIssues.Select(ToIssue)
+            };
+
+            return result;
         }
 
         public override void Export(ProjectExchangeData data)
@@ -33,7 +44,7 @@ namespace RedmineConnector
             throw new NotImplementedException();
         }
 
-        private User ToUser(RedmineUser redmineUser)
+        private static User ToUser(RedmineUser redmineUser)
         {
             return new User
             {
@@ -41,6 +52,41 @@ namespace RedmineConnector
                 Email = redmineUser.Email,
                 Username = redmineUser.Login
             };
+        }
+
+        private static Project ToProject(RedmineProject redmineProject)
+        {
+            var project = new Project
+            {
+                Id = redmineProject.Id.ToString(),
+                CreationDate = redmineProject.CreatedOn,
+                Description = redmineProject.Description,
+                LastUpdate = redmineProject.UpdatedOn,
+                Name = redmineProject.Name,
+            };
+            if (redmineProject.Parent != null)
+                project.ParentId = redmineProject.Parent.Id.ToString();
+            return project;
+        }
+
+        private static Issue ToIssue(RedmineIssue redmineIssue)
+        {
+            var issue = new Issue
+            {
+                Id = redmineIssue.Id.ToString(),
+                AuthorId = redmineIssue.Author.Id.ToString(),
+                Description = redmineIssue.Description,
+                Title = redmineIssue.Subject,
+                ProjectId = redmineIssue.Project.Id.ToString(),
+                CreationDate = redmineIssue.CreatedOn,
+                LastUpdate = redmineIssue.UpdatedOn,
+                DueDate = redmineIssue.DueDate,
+                AssigneeId = redmineIssue.AssignedTo.Id.ToString(),
+            };
+            if (redmineIssue.ParentIssue != null)
+                issue.ParentId = redmineIssue.ParentIssue.Id.ToString();
+
+            return issue;
         }
     }
 }

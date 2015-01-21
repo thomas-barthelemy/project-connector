@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="RedmineConnector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedmineConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project-Connector\Project-Connector.csproj">
