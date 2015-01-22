@@ -1,6 +1,6 @@
-﻿using Project_Connector.Models;
+﻿using Project_Connector_Library.Models;
 
-namespace Project_Connector.Connectors
+namespace Project_Connector_Library.Connectors
 {
     public class PlatformConvertor
     {

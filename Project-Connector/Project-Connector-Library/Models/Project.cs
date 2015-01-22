@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace Project_Connector.Models
+namespace Project_Connector_Library.Models
 {
     public class Project
     {
-        [Required]
         public string Name { get; set; }
-        [Required]
         public string Id { get; set; }
         public string Description { get; set; }
         public string ParentId { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace Project_Connector.Models
+﻿namespace Project_Connector_Library.Models
 {
     public class ProjectMembership
     {

@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Project_Connector.Connectors;
-using Project_Connector.Models;
+using Project_Connector_Library.Connectors;
+using Project_Connector_Library.Models;
 using Redmine.Net.Api;
 using RedmineUser = Redmine.Net.Api.Types.User;
 using RedmineProject = Redmine.Net.Api.Types.Project;
 using RedmineIssue = Redmine.Net.Api.Types.Issue;
+using RedmineProjectMembership = Redmine.Net.Api.Types.ProjectMembership;
 
 namespace RedmineConnector
 {
     public class RedminePlatformConnector : PlatformConnector
     {
+        private const string FormatVersion = "1.0";
+        private const string PlatformName = "redmine";
+
         private readonly RedmineManager _redmineManager;
 
         public RedminePlatformConnector(string hostname, string apiKey)
@@ -19,20 +24,23 @@ namespace RedmineConnector
             _redmineManager = new RedmineManager(Hostname, ApiKey, MimeFormat.xml, false);
         }
 
-
         public override ProjectExchangeData Import()
         {
             var redmineUsers = _redmineManager.GetTotalObjectList<RedmineUser>(null);
             var redmineProjects = _redmineManager.GetTotalObjectList<RedmineProject>(null);
             var redmineIssues = _redmineManager.GetTotalObjectList<RedmineIssue>(null);
+            var redmineProjectMemberships =
+                _redmineManager.GetTotalObjectList<RedmineProjectMembership>(null);
 
             var result = new ProjectExchangeData
             {
                 ExportDate = DateTime.Now,
-                ExportOrigin = new ExportOrigin {Name = "Redmine"},
-                Version = "1.0",
+                ExportOrigin = new ExportOrigin {Name = PlatformName},
+                Version = FormatVersion,
                 Users = redmineUsers.Select(ToUser),
-                Projects = redmineProjects.Select(ToProject),
+                Projects = redmineProjects.Select(p =>
+                    ToProject(p, redmineProjectMemberships
+                        .Where(m => m.Project.Id == p.Id))),
                 Issues = redmineIssues.Select(ToIssue)
             };
 
@@ -54,7 +62,8 @@ namespace RedmineConnector
             };
         }
 
-        private static Project ToProject(RedmineProject redmineProject)
+        private static Project ToProject(RedmineProject redmineProject,
+            IEnumerable<RedmineProjectMembership> projectMemberships)
         {
             var project = new Project
             {
@@ -63,6 +72,11 @@ namespace RedmineConnector
                 Description = redmineProject.Description,
                 LastUpdate = redmineProject.UpdatedOn,
                 Name = redmineProject.Name,
+                Members = projectMemberships.Select(m =>
+                    new ProjectMembership{
+                        Id = m.Id.ToString(),
+                        Role = m.Roles.Any() ? m.Roles[0].Name : null
+                    })
             };
             if (redmineProject.Parent != null)
                 project.ParentId = redmineProject.Parent.Id.ToString();
@@ -81,7 +95,7 @@ namespace RedmineConnector
                 CreationDate = redmineIssue.CreatedOn,
                 LastUpdate = redmineIssue.UpdatedOn,
                 DueDate = redmineIssue.DueDate,
-                AssigneeId = redmineIssue.AssignedTo.Id.ToString(),
+                AssigneeId = redmineIssue.AssignedTo.Id.ToString()
             };
             if (redmineIssue.ParentIssue != null)
                 issue.ParentId = redmineIssue.ParentIssue.Id.ToString();

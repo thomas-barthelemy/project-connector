@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace Project_Connector.Models
+namespace Project_Connector_Library.Models
 {
     public class Issue
     {
-        [Required]
         public string Id { get; set; }
-        [Required]
         public string ProjectId { get; set; }
-        [Required]
         public string Title { get; set; }
-        [Required]
         public string AssigneeId { get; set; }
-        [Required]
         public IssueStatus Status { get; set; }
 
         public string ParentId { get; set; }
