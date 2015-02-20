@@ -5,8 +5,8 @@ namespace Project_Connector_Library.Models
 {
     public class Issue
     {
-        public string Id { get; set; }
-        public string ProjectId { get; set; }
+        public int Id { get; set; }
+        public int ProjectId { get; set; }
         public string Title { get; set; }
         public string AssigneeId { get; set; }
         public IssueStatus Status { get; set; }
